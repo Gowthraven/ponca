@@ -18,6 +18,7 @@
 #include "src/Fitting/linePrimitive.h"
 #include "src/Fitting/plane.h"
 #include "src/Fitting/algebraicSphere.h"
+#include "src/Fitting/algebraicEllipsoid.h"
 
 // Fitting tools
 #include "src/Fitting/mean.h"
@@ -31,6 +32,9 @@
 #include "src/Fitting/mongePatch.h"
 #include "src/Fitting/sphereFit.h"
 #include "src/Fitting/orientedSphereFit.h"
+#include "src/Fitting/orientedEllipsoidFit.h"
+#include "src/Fitting/parabolicCylinder.h"
+#include "src/Fitting/orientedParabolicCylinder.h"
 #ifndef __CUDACC__
 # include "src/Fitting/unorientedSphereFit.h"
 #endif
