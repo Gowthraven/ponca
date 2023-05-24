@@ -195,4 +195,53 @@ public:
 };//class CompactExpWeightKernel
 
 
+//
+
+template <typename _Scalar>
+class IsotropicGaussianWeightKernel
+{
+public:
+    /*! \brief Scalar type defined outside the class */
+    typedef _Scalar Scalar;    
+
+    // Init
+    Scalar m_sigma;  // Standard deviation σ>0
+    PONCA_MULTIARCH inline IsotropicGaussianWeightKernel(const Scalar& sigma)
+        : m_sigma(sigma)
+    {}    
+
+    // Functor
+    /*! \brief Define the isotropic Gaussian weighting function f(x) 
+     * \see https://www.wolframalpha.com/input?i2d=true&i=g%5C%2840%29%CF%83%5C%2844%29+x%5C%2841%29%3DDivide%5B1%2C2%CF%80Square%5B%CF%83%5D%5DExp%5B%5C%2840%29-Divide%5BPower%5Bx%2CT%5Dx%2C2%CF%80Square%5B%CF%83%5D%5D%5C%2841%29%5D
+     * */
+    PONCA_MULTIARCH inline Scalar f (const Scalar& _x) const {
+        Scalar exponent = -(_x.transpose() * _x) / (2 * m_sigma * m_sigma); 
+        Scalar normalization = 1 / (2 * M_PI * m_sigma * m_sigma);
+        return normalization * std::exp(exponent); }
+    /*! \brief Define the derivative of the isotropic Gaussian weighting function df(x) 
+     * \see https://www.wolframalpha.com/input?i2d=true&i=%E2%88%87g%5C%2840%29%CF%83%5C%2844%29x%5C%2841%29%3D-Divide%5Bx%2CSquare%5B%CF%83%5D%5Dg%5C%2840%29%CF%83%5C%2844%29x%5C%2841%29
+     * */
+    PONCA_MULTIARCH inline Scalar df (const Scalar& _x) const {
+        Scalar exponent = -(_x.transpose() * _x) / (2 * m_sigma * m_sigma);
+        Scalar normalization = 1 / (2 * M_PI * m_sigma * m_sigma);
+        Scalar value = f(_x);
+        return normalization * (-_x / (m_sigma * m_sigma)) * value; }
+    /*! \brief Define the second derivative of the isotropic Gaussian weighting function ddf(x) 
+     * \see https://www.wolframalpha.com/input?i2d=true&i=Divide%5B1%2CSquare%5B%CF%83%5D%5D%5C%2840%29Divide%5BPower%5Bx%2CT%5Dx%2CSquare%5B%CF%83%5D%5D-2%5C%2841%29g%5C%2840%29%CF%83%5C%2844%29x%5C%2841%29
+     * */
+   PONCA_MULTIARCH inline Scalar ddf (const Scalar& _x) const {
+        Scalar exponent = -(_x.transpose() * _x) / (2 * m_sigma * m_sigma);
+        Scalar normalization = 1 / (2 * M_PI * m_sigma * m_sigma);
+        Scalar value = f(_x);
+        return normalization * ((1 / (m_sigma * m_sigma)) * ((_x.transpose() * _x) / (m_sigma * m_sigma) - 2) - value); 
+}
+
+    //! \brief #df is defined and valid on the definition interval
+    static constexpr bool isDValid = true;
+    //! \brief #ddf is defined and valid on the definition interval
+    static constexpr bool isDDValid = true;
+
+};//class IsotropicGaussianWeightKernel
+
+
 }// namespace Ponca
