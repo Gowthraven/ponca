@@ -257,7 +257,21 @@ OrientedEllipsoidDerImpl<DataPoint, _WFunctor, DiffType, T>::finalize()
                 - Base::m_dSumW[i] * Base::m_ul);
         }
 
-        m_dUc = ScalarArray::Zero(); // TODO
+        m_dUc = ScalarArray::Zero(); 
+
+        for(auto i = 0; i < Dim; ++i) {
+            MatrixType traceTerm = m_dSumProdPP.template block<Dim,Dim>(0, i*Dim) * Base::m_uq 
+                                + Base::m_sumProdPP * m_dUq.template block<Dim,Dim>(0, i*Dim);
+
+            Scalar traceValue = traceTerm.trace();    
+
+            m_dUc[i] = -invSumW * (
+                  m_dUl.col(i).dot(Base::m_sumP)
+                + Base::m_ul.dot(Base::m_dSumP.col(i))
+                + traceValue
+                - Base::m_dSumW[i] * Base::m_uc);
+}
+
     }
 
     return Base::m_eCurrentState;
