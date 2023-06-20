@@ -22,6 +22,16 @@ DistWeightFunc<DataPoint, WeightKernel>::w( const VectorType& _q,
     return { (d <= m_t) ? m_wk.f(d/m_t) : Scalar(0.), q };
 }
 
+
+template <class DataPoint, class WeightKernel, typename T>
+typename AnisoDistWeightFunc<DataPoint, WeightKernel, T>::VectorType
+AnisoDistWeightFunc<DataPoint, WeightKernel, T>::convertToLocalBasis(const VectorType& _q) const
+{
+    return /*VectorType(1., 0.5, 0.5)*/ m_scaleFactors * m_rot.transpose()*(_q - m_p ).array();
+}
+
+
+
 template <class DataPoint, class WeightKernel>
 typename DistWeightFunc<DataPoint, WeightKernel>::VectorType
 DistWeightFunc<DataPoint, WeightKernel>::spacedw(   const VectorType& _q, 

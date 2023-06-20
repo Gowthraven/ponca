@@ -66,7 +66,7 @@ public:
      * @param _q Query in global coordinate
      * @return Query expressed relatively to the basis center
      */
-    PONCA_MULTIARCH inline VectorType convertToLocalBasis(const VectorType& _q) const;
+    PONCA_MULTIARCH virtual inline VectorType convertToLocalBasis(const VectorType& _q) const;
 
     /*!
         \brief Compute the weight of the given query with respect to its coordinates.
@@ -80,7 +80,7 @@ public:
         \see convertToLocalBasis
         \return The computed weight + the point expressed in local basis
     */
-    PONCA_MULTIARCH inline WeightReturnType w(const VectorType& _q,
+    PONCA_MULTIARCH virtual inline WeightReturnType w(const VectorType& _q,
         const DataPoint&  /*attributes*/) const;
 
 
@@ -188,6 +188,20 @@ protected:
     VectorType   m_p;  /*!< \brief basis center */
 
 };// class DistWeightFunc
+
+
+template <class DataPoint, class WeightKernel>
+class AnisoDistWeightFunc : public DistWeightFunc<DataPoint, WeightKernel>//, public LocalFrame<DataPoint, WeightKernel, T>
+{
+    using VectorType = typename DistWeightFunc<DataPoint, WeightKernel>::VectorType;
+
+public:
+    VectorType m_scaleFactors {1.,1.,1.};
+    MatrixType m_rot          {MatrixType::Identity()};
+    VectorType convertToLocalBasis(const VectorType& _q) const override;
+    //typename DistWeightFunc<DataPoint, WeightKernel>::WeightReturnType w(const VectorType& _q, const DataPoint& _p) const override;
+};
+
 
 #include "weightFunc.hpp"
 
