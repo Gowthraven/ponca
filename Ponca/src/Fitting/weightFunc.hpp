@@ -23,11 +23,22 @@ DistWeightFunc<DataPoint, WeightKernel>::w( const VectorType& _q,
 }
 
 
-template <class DataPoint, class WeightKernel, typename T>
-typename AnisoDistWeightFunc<DataPoint, WeightKernel, T>::VectorType
-AnisoDistWeightFunc<DataPoint, WeightKernel, T>::convertToLocalBasis(const VectorType& _q) const
+template <class DataPoint, class WeightKernel>
+typename AnisoDistWeightFunc<DataPoint, WeightKernel>::VectorType
+AnisoDistWeightFunc<DataPoint, WeightKernel>::convertToLocalBasis(const VectorType& _q) const
 {
-    return /*VectorType(1., 0.5, 0.5)*/ m_scaleFactors * m_rot.transpose()*(_q - m_p ).array();
+    return (m_rot.inverse()*(_q - m_p)).array() * m_scaleFactors.array();
+    //return /*VectorType(1., 0.5, 0.5) */ m_scaleFactors * m_rot.transpose()*(_q - m_p ).array();
+}
+
+template <class DataPoint, class WeightKernel>
+typename AnisoDistWeightFunc<DataPoint, WeightKernel>::WeightReturnType
+AnisoDistWeightFunc<DataPoint, WeightKernel>::w( const VectorType& _q, 
+                                            const DataPoint&) const
+{
+    VectorType q = convertToLocalBasis(_q);
+    Scalar d  = q.norm();
+    return { (d <= m_t) ? m_wk.f(d/m_t) : Scalar(0.), q };
 }
 
 

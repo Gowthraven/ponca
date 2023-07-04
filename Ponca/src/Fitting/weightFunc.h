@@ -191,18 +191,44 @@ protected:
 
 
 template <class DataPoint, class WeightKernel>
-class AnisoDistWeightFunc : public DistWeightFunc<DataPoint, WeightKernel>//, public LocalFrame<DataPoint, WeightKernel, T>
+class AnisoDistWeightFunc : public DistWeightFunc<DataPoint, WeightKernel>
 {
+    using Scalar =  typename DistWeightFunc<DataPoint, WeightKernel>::Scalar;
     using VectorType = typename DistWeightFunc<DataPoint, WeightKernel>::VectorType;
+    using MatrixType = typename DistWeightFunc<DataPoint, WeightKernel>::MatrixType;
+
+protected: 
+    VectorType   m_p; 
+    Scalar       m_t;  
+    WeightKernel m_wk; 
 
 public:
     VectorType m_scaleFactors {1.,1.,1.};
     MatrixType m_rot          {MatrixType::Identity()};
+
+    PONCA_MULTIARCH inline AnisoDistWeightFunc(const Scalar& _t = Scalar(1.))
+    : m_p(VectorType::Zero())
+    {
+        //\todo manage that assrt on __host__ and __device__
+        //assert(_t > Scalar(0));
+        m_t = _t;
+    }
+
+        /*!
+     * \brief Initialization method, called by the fitting procedure
+     * @param _evalPos Basis center
+     */
+    PONCA_MULTIARCH inline void init( const VectorType& _evalPos )
+    {
+        m_p = _evalPos;
+    }
+
     VectorType convertToLocalBasis(const VectorType& _q) const override;
-    //typename DistWeightFunc<DataPoint, WeightKernel>::WeightReturnType w(const VectorType& _q, const DataPoint& _p) const override;
+    typename AnisoDistWeightFunc<DataPoint, WeightKernel>::WeightReturnType w(const VectorType& _q, const DataPoint& _p) const override;
 };
 
 
 #include "weightFunc.hpp"
 
 }// namespace Ponca
+
